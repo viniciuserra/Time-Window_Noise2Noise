@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper given in preferred-citation."
+title: "TWN2N: Time-Window Noise2Noise"
+abstract: >-
+  Python library for the self-supervised blind denoising of multichannel signals measured in
+  dynamical systems, such as vibration and impact signals. The network is trained on the noisy
+  signals themselves, without a clean reference and without a description of the noise.
+type: software
+version: 1.0.0
+date-released: "2026-11-18"
+license: MIT
+repository-code: "https://github.com/viniciuserra/Time-Window_Noise2Noise"
+authors:
+  - family-names: Vianna
+    given-names: "Vinicius S."
+    affiliation: "University of Campinas, Brazil"
+  - family-names: Machado
+    given-names: "Tiago H."
+    affiliation: "University of Campinas, Brazil"
+  - family-names: Santos
+    given-names: "Ilmar F."
+    affiliation: "Technical University of Denmark, Denmark"
+keywords:
+  - blind denoising
+  - self-supervised learning
+  - mechanical vibration
+  - contact dynamics
+  - autoencoder
+preferred-citation:
+  type: article
+  title: "Time-Window Noise2Noise: Self-Supervised Blind Denoising of Mechanical Vibration and Impact Signals"
+  authors:
+    - family-names: Vianna
+      given-names: "Vinicius S."
+    - family-names: Machado
+      given-names: "Tiago H."
+    - family-names: Santos
+      given-names: "Ilmar F."
+  year: 2026
+  journal: "arXiv preprint arXiv:2608.24443"
+  doi: "10.48550/arXiv.2608.24443"
+  url: "https://arxiv.org/abs/2608.24443"

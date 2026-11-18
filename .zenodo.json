@@ -1,0 +1,29 @@
+{
+  "title": "TWN2N: Time-Window Noise2Noise",
+  "version": "1.0.0",
+  "description": "<p>Python library for the self-supervised blind denoising of multichannel signals measured in dynamical systems, such as vibration and impact signals. The user provides the noisy signals and chooses the window size and the bottleneck size; the library builds the network, trains it on those same signals, and returns the denoised signals. No clean reference signal and no description of the noise are required.</p><p>The repository also contains the noise models (white, pink, and brown noise, and quantization), the signal-to-noise ratio metrics, the classical filters used as baselines, the two numerical benchmarks, and the scripts of the case studies of the paper <em>Time-Window Noise2Noise: Self-Supervised Blind Denoising of Mechanical Vibration and Impact Signals</em> (arXiv:2608.24443).</p>",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "mit",
+  "language": "eng",
+  "creators": [
+    { "name": "Vianna, Vinicius S.", "affiliation": "University of Campinas, Brazil" },
+    { "name": "Machado, Tiago H.", "affiliation": "University of Campinas, Brazil" },
+    { "name": "Santos, Ilmar F.", "affiliation": "Technical University of Denmark, Denmark" }
+  ],
+  "keywords": [
+    "blind denoising",
+    "self-supervised learning",
+    "mechanical vibration",
+    "contact dynamics",
+    "autoencoder"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://doi.org/10.48550/arXiv.2608.24443",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-preprint"
+    }
+  ],
+  "notes": "This work was supported by the Center for Innovation on New Energies (CINE) and by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES), Brazil, Finance Code 001."
+}
