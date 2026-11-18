@@ -64,12 +64,6 @@ def test_layer_sizes_match_the_paper():
     assert layer_sizes(20, 5, 3, "compact") == [45, 25, 25, 3, 3, 3, 25, 25, 45, 5]
 
 
-def test_default_r_matches_the_paper():
-    assert twn2n.default_r(6) == 4
-    assert twn2n.default_r(5) == 3
-    assert twn2n.default_r(1) == 1
-
-
 # -------------------------------------------------------------------- noise --
 @pytest.mark.parametrize("kind", ["white", "pink", "brown"])
 def test_additive_noise_has_the_requested_snr(vibration, kind):
@@ -106,6 +100,12 @@ def test_quantization_of_the_vibration_benchmark(vibration):
     assert abs(twn2n.snr_db(clean, quantized, channels=[0, 1, 2]) - 15.36) < 0.01     # value reported in the paper
     x = quantized[0][:, 0]
     assert len(np.unique(np.round(x / np.min(np.abs(x[x != 0])), 6))) <= 16           # the peak spans about seven levels
+
+
+def test_quantization_leaves_constant_channels_untouched():
+    record = np.column_stack([np.sin(np.linspace(0, 20, 500)), np.full(500, 0.9)])
+    quantized = twn2n.quantize(record)
+    assert np.array_equal(quantized[:, 1], record[:, 1]) and not np.array_equal(quantized[:, 0], record[:, 0])
 
 
 def test_unknown_noise_kind():
@@ -209,7 +209,7 @@ def test_denoiser_improves_the_snr_and_keeps_the_container():
     as_list = model.denoise([noisy[:700], noisy[700:]])
     assert isinstance(as_list, list) and as_list[0].shape == (700, 4) and as_list[1].shape == (800, 4)
     assert np.array_equal(as_list[1][:2], noisy[700:702])
-    single = twn2n.TWN2N(p=1, epochs=2, seed=0).fit_denoise(noisy[:, 0])
+    single = twn2n.TWN2N(r=1, p=1, epochs=2, seed=0).fit_denoise(noisy[:, 0])
     assert single.shape == (len(noisy),)
     shortcut, fitted = twn2n.denoise(noisy, p=1, r=2, epochs=2, seed=0, return_model=True)
     assert shortcut.shape == noisy.shape and fitted.p == 1
@@ -257,8 +257,8 @@ def test_batches_are_reshuffled_at_every_epoch():
 @pytest.mark.slow
 def test_save_and_load(tmp_path):
     _, noisy = _mixture_of_two_modes(n=600)
-    model = twn2n.TWN2N(p=2, r=2, network="compact", epochs=3, seed=1).fit(noisy)
-    path = tmp_path / "model.npz"
+    model = twn2n.TWN2N(p=2, r=2, network="compact", epochs=3, seed=np.int64(1)).fit(noisy)
+    path = tmp_path / "model"                           # numpy adds the .npz extension
     model.save(path)
     loaded = twn2n.TWN2N.load(path)
     assert np.allclose(loaded.denoise(noisy), model.denoise(noisy), atol=1e-6)
@@ -314,8 +314,14 @@ def test_consolidated_results_give_the_tables_of_the_paper():
 
 def test_errors_before_training_and_on_bad_input():
     with pytest.raises(RuntimeError):
-        twn2n.TWN2N().denoise(np.zeros((50, 2)))
+        twn2n.TWN2N(r=1).denoise(np.zeros((50, 2)))
     with pytest.raises(ValueError):
-        twn2n.TWN2N(p=0)
+        twn2n.TWN2N(r=1, p=0)
+    with pytest.raises(ValueError):
+        twn2n.TWN2N(r=0)
+    with pytest.raises(TypeError):
+        twn2n.TWN2N()                                   # r has no default: the user chooses it
+    with pytest.raises(ValueError):
+        benchmarks.three_dof_system("R999")
     with pytest.raises(ValueError):
         twn2n.snr_db(np.zeros((10, 2, 3)), np.zeros((10, 2, 3)))

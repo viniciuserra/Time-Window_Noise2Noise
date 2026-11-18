@@ -20,7 +20,7 @@ A single trial depends on the noise realization and on the initial weights of th
 every condition and reports statistics over the trials:
 
 - **Vibration of the 3-DOF system:** white noise at six input SNRs (25, 20, 15, 12, 10, and 5 dB) and pink noise,
-  brown noise, and quantization at 15 dB. Each of the nine conditions has thirty trials.
+  brown noise, and quantization at about 15 dB. Each of the nine conditions has thirty trials.
 - **Nonlinear impact:** five noise levels, with the standard deviation of the noise at 3, 5, 7, 10, and 15% of
   that of each signal. Each level has three trials, and every trial contains the twenty impacts of the dataset.
 
@@ -50,7 +50,7 @@ python paper/tables.py                                                   # resul
 ```
 
 Each worker is a separate process that uses two CPU threads and about 1 GB of memory. One trial of the vibration
-case takes from one to three minutes, and one trial of the impact case takes about one hour. Trials that already
+case takes a few minutes, and one trial of the impact case takes about one hour. Trials that already
 have a result file are skipped, so an interrupted run resumes with the same command.
 
 ## What to expect from a new trial
@@ -58,4 +58,5 @@ have a result file are skipped, so an interrupted run resumes with the same comm
 The signals, the noise realizations, the classical filters, the metrics, and the modal identification are
 deterministic: the library gives the values of the paper for them. The output of TWN2N depends on the initial
 weights of the network, which change with the software version, so a new trial is expected to fall inside the
-range of the trials of the paper and not to repeat one of them.
+range of the trials of the paper and not to repeat one of them. In the impact case the paper has three trials per
+noise level, so its range is narrow, and a new trial can fall slightly outside it.

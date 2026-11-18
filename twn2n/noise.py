@@ -156,7 +156,7 @@ def quantize(signals, bits=12, peak_fraction=0.0035, channels=None):
         for ch in _channel_list(channels, record.shape[1]):
             s = record[:, ch]
             peak = np.max(np.abs(s))
-            if peak < 1e-14:
+            if peak < 1e-14 or np.std(s) < 1e-14:      # channels that are constant inside a record stay untouched
                 continue
             gain = (peak_fraction * full_range / 2) / peak
             out[:, ch] = np.round(s * gain / lsb) * lsb / gain

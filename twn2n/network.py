@@ -99,6 +99,12 @@ def stop_after_overfitting(patience=100):
             train_loss = logs.get("loss")
             if val_loss is None:
                 return
+            if not np.isfinite(val_loss):          # diverged training: stop and keep the best weights so far
+                self.stopped_epoch = epoch
+                self.model.stop_training = True
+                if self.best_weights is not None:
+                    self.model.set_weights(self.best_weights)
+                return
             if val_loss < self.best_loss:
                 self.best_loss = val_loss
                 self.best_epoch = epoch

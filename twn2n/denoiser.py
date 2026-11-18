@@ -1,5 +1,6 @@
 """The TWN2N denoiser: build the masked windows, train the autoencoder, return the denoised signals."""
 import json
+import os
 import random
 import time
 import warnings
@@ -9,17 +10,6 @@ import numpy as np
 from ._records import as_records
 from .network import build_network, stop_after_overfitting
 from .windows import _check_p, split_rows, stack_windows
-
-
-def default_r(n_channels):
-    """Bottleneck size used when the caller does not choose one.
-
-    The rule is two thirds of the number of channels, rounded to the nearest
-    integer and never smaller than one. It returns the values of the paper:
-    4 for the six channels of the vibration benchmark and 3 for the five
-    channels of the impact benchmark.
-    """
-    return max(1, int(round(2.0 * int(n_channels) / 3.0)))
 
 
 class TWN2N:
@@ -36,14 +26,14 @@ class TWN2N:
 
     Parameters
     ----------
+    r : int
+        Number of units of the bottleneck (the latent dimension of the
+        paper). It should be smaller than the number of channels, so that the
+        code has to compress the state of the system. The paper uses 4 for
+        six channels and 3 for five channels.
     p : int, default 2
         Number of neighbors on each side of the masked instant. The input of
         the network has ``2 * p * n_channels`` features.
-    r : int or None, default None
-        Number of units of the bottleneck (the latent dimension of the
-        paper). It should be smaller than the number of channels, so that the
-        code has to compress the state of the system. ``None`` uses
-        :func:`default_r`.
     network : {"standard", "compact"} or callable, default "standard"
         Architecture. ``"standard"`` is the one of the vibration benchmark and
         ``"compact"`` the one of the impact benchmark. A callable
@@ -97,23 +87,23 @@ class TWN2N:
     >>> denoised = model.fit_denoise(noisy)      # noisy: (n_samples, 6) array
     """
 
-    def __init__(self, p=2, r=None, network="standard", epochs=5000, batch_size=32,
+    def __init__(self, r, p=2, network="standard", epochs=5000, batch_size=32,
                  learning_rate=1e-3, patience=100, validation_fraction=0.1, split_seed=42,
                  seed=None, verbose=0):
         self.p = _check_p(p)
-        if r is not None and (int(r) != r or r < 1):
-            raise ValueError(f"r must be a positive integer or None; got {r!r}.")
+        if isinstance(r, bool) or int(r) != r or r < 1:
+            raise ValueError(f"r must be a positive integer; got {r!r}.")
         if not 0.0 < validation_fraction < 1.0:
             raise ValueError("validation_fraction must lie between 0 and 1.")
-        self.r = None if r is None else int(r)
+        self.r = int(r)
         self.network = network
         self.epochs = int(epochs)
         self.batch_size = int(batch_size)
         self.learning_rate = float(learning_rate)
         self.patience = int(patience)
         self.validation_fraction = float(validation_fraction)
-        self.split_seed = split_seed
-        self.seed = seed
+        self.split_seed = int(split_seed)
+        self.seed = None if seed is None else int(seed)
         self.verbose = verbose
         self.model_ = None
 
@@ -139,7 +129,7 @@ class TWN2N:
         records, _ = as_records(signals)
         X, Y, _ = stack_windows(records, self.p)
         n_channels = Y.shape[1]
-        r = self.r if self.r is not None else default_r(n_channels)
+        r = self.r
         if n_channels > 1 and r >= n_channels:
             warnings.warn(
                 f"r = {r} is not smaller than the number of channels ({n_channels}). "
@@ -237,12 +227,15 @@ class TWN2N:
     @classmethod
     def load(cls, path, network=None):
         """Load a denoiser saved with :meth:`save`."""
+        path = os.fspath(path)
+        if not os.path.exists(path) and os.path.exists(path + ".npz"):
+            path = path + ".npz"                # numpy adds the extension when save() receives a bare name
         with np.load(path, allow_pickle=False) as data:
             settings = json.loads(str(data["settings"]))
             net = network if network is not None else settings["network"]
             if net is None:
                 raise ValueError("This file was saved with a custom architecture; pass it as `network`.")
-            obj = cls(p=settings["p"], r=settings["r"], network=net,
+            obj = cls(r=settings["r"], p=settings["p"], network=net,
                       epochs=settings["epochs"], batch_size=settings["batch_size"],
                       learning_rate=settings["learning_rate"], patience=settings["patience"],
                       validation_fraction=settings["validation_fraction"],
@@ -273,19 +266,19 @@ class TWN2N:
         return f"TWN2N(p={self.p}, r={self.r}, network={net!r})"
 
 
-def denoise(signals, p=2, r=None, return_model=False, **kwargs):
+def denoise(signals, r, p=2, return_model=False, **kwargs):
     """Denoise signals in one call.
 
-    Shortcut for ``TWN2N(p=p, r=r, **kwargs).fit_denoise(signals)``.
+    Shortcut for ``TWN2N(r=r, p=p, **kwargs).fit_denoise(signals)``.
 
     Parameters
     ----------
     signals : array-like or list of array-like
         Noisy record or list of records (see :meth:`TWN2N.fit`).
+    r : int
+        Number of units of the bottleneck.
     p : int, default 2
         Number of neighbors on each side of the masked instant.
-    r : int or None, default None
-        Bottleneck size; ``None`` uses :func:`default_r`.
     return_model : bool, default False
         If ``True``, also return the trained :class:`TWN2N` object.
     **kwargs
@@ -297,7 +290,7 @@ def denoise(signals, p=2, r=None, return_model=False, **kwargs):
     model : TWN2N
         Only when ``return_model`` is ``True``.
     """
-    model = TWN2N(p=p, r=r, **kwargs)
+    model = TWN2N(r=r, p=p, **kwargs)
     denoised = model.fit_denoise(signals)
     return (denoised, model) if return_model else denoised
 

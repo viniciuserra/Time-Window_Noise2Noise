@@ -35,8 +35,8 @@ def main(argv=None):
     parser.add_argument("input", help="CSV file with one row per time sample and one column per channel")
     parser.add_argument("output", help="CSV file that receives the denoised signals")
     parser.add_argument("--p", type=int, default=2, help="neighbors on each side of the masked sample (default: 2)")
-    parser.add_argument("--r", type=int, default=None,
-                        help="units of the bottleneck (default: two thirds of the number of channels)")
+    parser.add_argument("--r", type=int, required=True,
+                        help="units of the bottleneck, smaller than the number of channels")
     parser.add_argument("--columns", default=None,
                         help="indices of the signal columns, starting at 0 and separated by commas (default: all)")
     parser.add_argument("--network", default="standard", choices=NETWORKS, help="architecture (default: standard)")

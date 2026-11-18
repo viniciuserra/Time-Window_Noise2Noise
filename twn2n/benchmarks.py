@@ -98,6 +98,8 @@ def three_dof_system(damping="R010"):
     damping : str, default "R010"
         Key of :data:`THREE_DOF_DAMPING`.
     """
+    if damping not in THREE_DOF_DAMPING:
+        raise ValueError(f"Unknown damping configuration {damping!r}; choose one of {sorted(THREE_DOF_DAMPING)}.")
     M, K = chain_matrices(THREE_DOF_MASSES, THREE_DOF_STIFFNESSES)
     wn_undamped = np.sqrt(np.sort(np.linalg.eigvalsh(np.linalg.inv(M) @ K)))
     alpha, beta = _rayleigh_coefficients(wn_undamped, THREE_DOF_DAMPING[damping])
@@ -176,9 +178,10 @@ def hunt_crossley_impacts(velocities=IMPACT_VELOCITIES, restitutions=IMPACT_REST
                           n_eval=1_000_000):
     """Clean signals of the impact benchmark.
 
-    A mass of 0.54 kg hits a flat surface with each combination of approach
-    velocity and coefficient of restitution (twenty impacts by default). Each
-    record covers the contact, from the first touch to the separation.
+    The impact of a mass of 0.54 kg is simulated for each combination of
+    approach velocity and coefficient of restitution (twenty impacts by
+    default). Each record covers the contact, from the first touch to the
+    separation.
 
     Parameters
     ----------

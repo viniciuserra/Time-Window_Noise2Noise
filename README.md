@@ -100,7 +100,7 @@ describe it; `model.denoise(other)` applies the trained network to other records
 | Parameter | Meaning | How to choose |
 |---|---|---|
 | `p` | Number of neighbors taken on each side of the masked sample. The network has `2 * p * n_channels` inputs. | The paper uses `p = 2` in every experiment: it is the smallest symmetric window that contains the central-difference stencil of a second-order system once the central sample is masked. |
-| `r` | Number of units of the bottleneck (the latent dimension). | Smaller than the number of channels, so that the bottleneck compresses the output. The default is two thirds of the number of channels, which gives the values of the paper: 4 for six channels and 3 for five channels. |
+| `r` | Number of units of the bottleneck (the latent dimension). | Smaller than the number of channels, so that the bottleneck compresses the output. The paper uses 4 for six channels and 3 for five channels. |
 
 Neither parameter was tuned in the paper, because tuning them by the output SNR would require the clean signal.
 
@@ -133,7 +133,7 @@ so its noise level follows from the resolution of the converter.
 
 ## Other tools
 
-| Module | Content |
+| Module or function | Content |
 |---|---|
 | `twn2n.filters` | Classical filters used as baselines in the paper: zero-phase Butterworth low-pass filter, Savitzky-Golay filter, and VisuShrink wavelet threshold (requires PyWavelets). |
 | `twn2n.modal` | Identification of natural frequencies and damping ratios from free responses with the Ibrahim Time Domain (ITD) method. |
@@ -158,7 +158,7 @@ The paper evaluates the method on two numerical benchmarks. A single trial depen
 the initial weights of the network, so the paper repeats every condition and reports statistics over the trials:
 
 - **Vibration of a 3-DOF system:** impulse responses with white noise at six input SNRs, from 25 to 5 dB, and with
-  pink noise, brown noise, and quantization at 15 dB. Each of the nine conditions has thirty trials.
+  pink noise, brown noise, and quantization at about 15 dB. Each of the nine conditions has thirty trials.
 - **Nonlinear impact:** twenty impacts that follow the contact law of Hunt and Crossley, at five noise levels. Each
   level has three trials.
 
@@ -220,8 +220,9 @@ The paper states where the method works and where it does not, and the same limi
 - Correlated noise is removed only in part. The gain is smaller for pink noise and close to zero for brown noise.
   The gain is also small for the quantization error, which is a function of the signal.
 - The signals must be sampled densely enough for neighboring samples to be related by the dynamics of the system.
-- A network is trained for each set of records. Training takes from one to three minutes for the 9,216 samples of
-  the vibration case study and about one hour for the 299,522 samples of the impact case study, on a CPU.
+- A network is trained for each set of records. In the paper, on two CPU cores, the training took a median of
+  2.4 minutes for the records of the vibration case study and a median of 58 minutes for the 299,522 samples of the
+  impact case study.
 
 ## Tests
 
