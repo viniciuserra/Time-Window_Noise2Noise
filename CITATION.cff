@@ -7,6 +7,7 @@ abstract: >-
   signals themselves, without a clean reference and without a description of the noise.
 type: software
 version: 1.0.0
+doi: "10.5281/zenodo.24355387"
 date-released: "2026-11-18"
 license: MIT
 repository-code: "https://github.com/viniciuserra/Time-Window_Noise2Noise"

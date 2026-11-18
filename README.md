@@ -1,5 +1,7 @@
 # Time-Window Noise2Noise (TWN2N)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24355386.svg)](https://doi.org/10.5281/zenodo.24355386)
+
 TWN2N is a self-supervised method for the blind denoising of signals measured in dynamical systems, such as the
 vibration of a structure or the force of an impact. This repository contains its Python library. The user provides
 the noisy signals and chooses two parameters; the library builds the network, trains it on those same signals, and
@@ -246,6 +248,11 @@ If you use this library, please cite the paper:
   url           = {https://arxiv.org/abs/2608.24443}
 }
 ```
+
+To cite the library itself, use its archived release:
+
+> V. S. Vianna, T. H. Machado, and I. F. Santos. *TWN2N: Time-Window Noise2Noise*, version 1.0.0. Zenodo.
+> [https://doi.org/10.5281/zenodo.24355387](https://doi.org/10.5281/zenodo.24355387).
 
 ## License and funding
 
