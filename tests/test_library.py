@@ -245,7 +245,7 @@ def test_batches_are_reshuffled_at_every_epoch():
         x = np.arange(12, dtype=float).reshape(-1, 1)
         model = Probe()
         model.compile(optimizer="sgd", loss="mse", run_eagerly=True)
-        model.fit(_shuffled_batches(x, x, 4, seed=3), epochs=4, verbose=0, callbacks=[Recorder()])
+        model.fit(_shuffled_batches(x, x, 4, seed=3), epochs=4, shuffle=False, verbose=0, callbacks=[Recorder()])
         return orders
 
     first, second = epoch_orders(), epoch_orders()
